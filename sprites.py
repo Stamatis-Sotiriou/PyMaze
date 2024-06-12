@@ -1,6 +1,6 @@
-from GameSprite import Player, Wall, Light
+from GameSprite import *
 
-player = Player((325, 100), (50,50), (0,100,0), 15)
+player = Player((325, 100), (50,50), (0,100,0), 7)
 
 wall_1 = Wall((0,0),     (275, 175), (0,0,0)) #cor, size, color
 wall_2 = Wall((425,0),   (700, 175), (0,0,0))
@@ -33,3 +33,5 @@ light_up    = Light([(250, 100), (400, 100)])
 light_down  = Light([(250, 400), (400, 400)])
 
 light_group = [light_left, light_right, light_up, light_down]
+
+key_13 = GameSprite((325,400), (50,50), (0,255,255), 1)
