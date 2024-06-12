@@ -1,6 +1,6 @@
 from pygame import (sprite, draw, Rect, Surface, key, 
                     SRCALPHA, K_UP, K_DOWN, K_LEFT, K_RIGHT)
-from random import choice
+from random import choice, randint
 
 class GameSprite(sprite.Sprite):
     def __init__(self, cor, size, color, speed = 0):
@@ -10,6 +10,7 @@ class GameSprite(sprite.Sprite):
         self.speed = speed
         
         self.rect = Rect(self.x, self.y, self.size[0], self.size[1])
+        self.original_y = self.rect.y
         
         self.active = None
         
@@ -45,6 +46,10 @@ class Player(GameSprite):
         elif self.rect.top < wall.rect.bottom and self.rect.bottom > wall.rect.bottom:
             self.rect.top = wall.rect.bottom
 
+    def on_key(self, key):
+        return self.rect.colliderect(key)
+            
+
     def next_room(self):
         if self.rect.x <= 20:
             self.rect.x = 600
@@ -67,36 +72,38 @@ class Wall(GameSprite):
             draw.rect(surface, (self.color), ((1500,0), (0,0)))
 
     def make_wall(surface, wall_list, active_list):
-        for i in range(0,13,1):
+        for i in range(0,13,1):                
             cur_wall = wall_list[i]
             cur_wall.active = active_list[0][i]
-        for wall in wall_list:
-            if wall.active:
-                wall.wall_show(surface)
+            if cur_wall.active:
+                cur_wall.wall_show(surface)
 
     def collision(wall_list, player):
         for wall in wall_list:
             if wall.active:
                 player.collision_check(wall)
-    
+
 class Light():
     def __init__(self, cor):
-        self.size = (50, 50)
         self.cor_choice = cor
+
+    def init(self):
+        self.size = (50, 50) 
+        self.alpha_count = randint(90, 150)
+		
         self.switch = True
-        self.alpha_count = 120
         self.active = None
         
         self.small_rect = Surface((self.size), SRCALPHA)
-        self.small_rect.set_alpha(120)
+        self.small_rect.set_alpha(self.alpha_count)
         self.small_rect.fill((255,255,0))
 
         self.mid_rect = Surface((self.size[0] * 1.5, self.size[1] * 1.5), SRCALPHA)
-        self.mid_rect.set_alpha(75)
+        self.mid_rect.set_alpha(self.alpha_count - 45)
         self.mid_rect.fill((255,200,0))
 
         self.big_rect = Surface((self.size[0] * 2, self.size[1] * 2), SRCALPHA)
-        self.big_rect.set_alpha(40)
+        self.big_rect.set_alpha(self.alpha_count - 80)
         self.big_rect.fill((200,150,0))
     
     def get_new_cor(light_list):
@@ -113,13 +120,17 @@ class Light():
             self.alpha_count += 1
             self.small_rect.set_alpha(self.alpha_count)
             self.mid_rect.set_alpha(self.alpha_count - 45)
-            if self.small_rect.get_alpha() > 150:
+            self.big_rect.set_alpha(self.alpha_count - 80)
+			
+            if self.small_rect.get_alpha() > 180:
                 self.switch = False
         else:
             self.alpha_count -= 1
             self.small_rect.set_alpha(self.alpha_count)
             self.mid_rect.set_alpha(self.alpha_count - 45)
-            if self.small_rect.get_alpha() < 90:
+            self.big_rect.set_alpha(self.alpha_count - 80)
+			
+            if self.small_rect.get_alpha() < 60:
                 self.switch = True
 
     def make_lights(surface, light_list, active_list):
